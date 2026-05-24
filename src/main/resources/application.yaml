@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bb-eload-api
+  datasource:
+    url: jdbc:mysql://localhost:3306/anytop_uml
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+      format_sql: true
+ 
+eload:
+  base-url: http://192.168.0.252
+  username: root
+  password: root
+  endpoints:
+    ussd-gateway: /goip_send_ussd.html
+    get-status: /goip_get_status.html
+    send-cmd: /goip_send_cmd.html
+    post-sms: /goip_post_sms
+
+logging:
+  level:
+    com.bytebridges.anytop: DEBUG
+  file:
+    name: ../logs/eload.log
