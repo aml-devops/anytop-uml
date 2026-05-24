@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bytebridges.anytop.common.ServiceResponse;
 import com.bytebridges.anytop.domain.transaction.dto.TopupRequest;
 import com.bytebridges.anytop.domain.transaction.dto.TopupResponseDto;
+import com.bytebridges.anytop.domain.transaction.service.DashboardService;
 import com.bytebridges.anytop.domain.transaction.service.TelcoService;
 import com.bytebridges.anytop.domain.transaction.service.TransactionCommandService;
 import com.bytebridges.anytop.domain.transaction.service.TransactionQueryService;
@@ -33,6 +34,7 @@ public class TransactionController {
 	private final TransactionCommandService transactionCommandService;
 	private final TransactionQueryService transactionQueryService;
 	private final TelcoService telcoService;
+	private final DashboardService dashboardService;
 
 	@Operation(summary = "Check Mobile Operator", description = "Detects Myanmar mobile operator type from the provided MSISDN number")
 	@GetMapping("/checkTelco")
@@ -65,4 +67,12 @@ public class TransactionController {
 
 		return transactionQueryService.getTransactionsByCreatedAt(startDate, endDate, page, size);
 	}
+
+	@Operation(summary = "Get Transaction Count Per Operator", description = "Retrieves total transaction count grouped by operator")
+	@GetMapping("/txns-per-operator")
+	public ServiceResponse<?> getTransactionCountPerOperator() {
+
+		return dashboardService.getTransactionCountPerOperator();
+	}
+
 }

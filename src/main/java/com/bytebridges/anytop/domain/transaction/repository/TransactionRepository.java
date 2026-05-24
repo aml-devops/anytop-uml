@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bytebridges.anytop.domain.transaction.dto.OperatorTransactionChartDto;
 import com.bytebridges.anytop.domain.transaction.entity.Transaction;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -77,4 +78,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 	    AND status = 'PROCESSING'
 	""", nativeQuery = true)
 	int markSystemFailed(Long txnId);
+	
+    @Query(value = """
+            SELECT 
+                t.operator AS operator,
+                COUNT(*) AS totalTransactions
+            FROM transactions t
+            GROUP BY t.operator
+            ORDER BY COUNT(*) DESC
+            """, nativeQuery = true)
+        List<OperatorTransactionChartDto> getTransactionCountPerOperator();
 }
