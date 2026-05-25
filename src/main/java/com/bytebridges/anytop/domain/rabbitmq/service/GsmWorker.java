@@ -64,7 +64,6 @@ public class GsmWorker {
 			// =========================
 			transactionRepository.completeTransaction(txn.getId(), result.name(), sim.getId());
 			log.info("Topup done txnId={} operator={} simId={} result={}", txnId, operator, sim.getId(), result);
-
 		} catch (Exception ex) {
 			transactionRepository.markSystemFailed(txn.getId());
 			log.error("Topup error txnId={} operator={} errorType={}", txnId, operator, ex.getClass().getSimpleName(), ex);

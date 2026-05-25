@@ -30,14 +30,14 @@ public class MsisdnCallUssdService {
 
 		if (pre == null || pre.getResp() == null) {
 
-			log.warn("USSD_MSISDN_REQUEST_FAILED telco=MPT port={} reason=NULL_RESPONSE", port);
+			log.warn("USSD msisdn request failed telco=MPT port={} reason=NULL_RESPONSE", port);
 
 			return msisdn;
 		}
 
 		String response = pre.getResp();
 
-		log.debug("USSD_MSISDN_RAW_RESPONSE telco=MPT port={} response={}", port, response);
+		log.debug("USSD msisdn raw response telco=MPT port={} response={}", port, response);
 
 		Pattern pattern = Pattern.compile("MSISDN:(\\d+)", Pattern.CASE_INSENSITIVE);
 
@@ -47,11 +47,11 @@ public class MsisdnCallUssdService {
 
 			msisdn = matcher.group(1);
 
-			log.info("USSD_MSISDN_EXTRACTED telco=MPT port={} msisdn={}", port, msisdn);
+			log.info("USSD msisdn extracted telco=MPT port={} msisdn={}", port, msisdn);
 
 		} else {
 
-			log.warn("USSD_MSISDN_PARSE_FAILED telco=MPT port={} response={}", port, response);
+			log.warn("USSD msisdn parse failed telco=MPT port={} response={}", port, response);
 		}
 
 		return msisdn;
@@ -67,14 +67,14 @@ public class MsisdnCallUssdService {
 
 		if (pre == null || pre.getResp() == null) {
 
-			log.warn("USSD_MSISDN_REQUEST_FAILED telco=ATOM port={} reason=NULL_RESPONSE", port);
+			log.warn("USSD msisdn request failed telco=ATOM port={} reason=NULL_RESPONSE", port);
 
 			return msisdn;
 		}
 
 		String response = pre.getResp();
 
-		log.debug("USSD_MSISDN_RAW_RESPONSE telco=ATOM port={} response={}", port, response);
+		log.debug("USSD msisdn raw response telco=ATOM port={} response={}", port, response);
 
 		Pattern pattern = Pattern.compile("MSISDN:(\\d+)", Pattern.CASE_INSENSITIVE);
 
@@ -84,11 +84,11 @@ public class MsisdnCallUssdService {
 
 			msisdn = matcher.group(1);
 
-			log.info("USSD_MSISDN_EXTRACTED telco=ATOM port={} msisdn={}", port, msisdn);
+			log.info("USSD msisdn extracted telco=ATOM port={} msisdn={}", port, msisdn);
 
 		} else {
 
-			log.warn("USSD_MSISDN_PARSE_FAILED telco=ATOM port={} response={}", port, response);
+			log.warn("USSD msisdn parse failed telco=ATOM port={} response={}", port, response);
 		}
 
 		return msisdn;
@@ -104,14 +104,14 @@ public class MsisdnCallUssdService {
 
 		if (pre == null || pre.getResp() == null) {
 
-			log.warn("USSD_MSISDN_REQUEST_FAILED telco=U9 port={} reason=NULL_RESPONSE", port);
+			log.warn("USSD msisdn request failed telco=U9 port={} reason=NULL_RESPONSE", port);
 
 			return msisdn;
 		}
 
 		String response = pre.getResp();
 
-		log.debug("USSD_MSISDN_RAW_RESPONSE telco=U9 port={} response={}", port, response);
+		log.debug("USSD msisdn raw response telco=U9 port={} response={}", port, response);
 
 		Pattern pattern = Pattern.compile("\\+?(95\\d+)");
 
@@ -121,11 +121,11 @@ public class MsisdnCallUssdService {
 
 			msisdn = matcher.group(1);
 
-			log.info("USSD_MSISDN_EXTRACTED telco=U9 port={} msisdn={}", port, msisdn);
+			log.info("USSD msisdn extracted telco=U9 port={} msisdn={}", port, msisdn);
 
 		} else {
 
-			log.warn("USSD_MSISDN_PARSE_FAILED telco=U9 port={} response={}", port, response);
+			log.warn("USSD msisdn parse failed telco=U9 port={} response={}", port, response);
 		}
 
 		return msisdn;
@@ -141,14 +141,14 @@ public class MsisdnCallUssdService {
 
 		if (pre == null || pre.getResp() == null) {
 
-			log.warn("USSD_MSISDN_REQUEST_FAILED telco=MYTEL port={} reason=NULL_RESPONSE", port);
+			log.warn("USSD msisdn request failed telco=MYTEL port={} reason=NULL_RESPONSE", port);
 
 			return msisdn;
 		}
 
 		String response = pre.getResp();
 
-		log.debug("USSD_MSISDN_RAW_RESPONSE telco=MYTEL port={} response={}", port, response);
+		log.debug("USSD msisdn raw response telco=MYTEL port={} response={}", port, response);
 
 		Pattern pattern = Pattern.compile("(95\\d+)");
 
@@ -158,11 +158,11 @@ public class MsisdnCallUssdService {
 
 			msisdn = matcher.group(1);
 
-			log.info("USSD_MSISDN_EXTRACTED telco=MYTEL port={} msisdn={}", port, msisdn);
+			log.info("USSD msisdn extracted telco=MYTEL port={} msisdn={}", port, msisdn);
 
 		} else {
 
-			log.warn("USSD_MSISDN_PARSE_FAILED telco=MYTEL port={} response={}", port, response);
+			log.warn("USSD msisdn parse failed telco=MYTEL port={} response={}", port, response);
 		}
 
 		return msisdn;

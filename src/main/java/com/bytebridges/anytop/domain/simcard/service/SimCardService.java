@@ -200,6 +200,7 @@ public class SimCardService {
 
 				log.info("SIM msisdn updated simId={} operator={} port={} msisdn={}", sim.getId(), sim.getOperator(),
 						sim.getSimName(), msisdn);
+				log.info("-------------------------------------------------------");
 
 			} catch (Exception e) {
 

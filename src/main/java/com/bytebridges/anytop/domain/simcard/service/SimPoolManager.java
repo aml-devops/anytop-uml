@@ -90,6 +90,7 @@ public class SimPoolManager {
 		boolean added = queue.offer(sim);
 		if (added) {
 			log.info("SIM released operator={} simId={} port={}", operatorKey, sim.getId(), sim.getSimName());
+			log.info("-----------------------------------------------");
 		} else {
 			log.error("Failed to release SIM pool full? operator={} simId={}", operatorKey, sim.getId());
 		}

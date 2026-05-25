@@ -97,7 +97,8 @@ public class MptTopupUssdService implements UssdTopupService {
 	private boolean needSecondConfirm(Message msg) {
 		return safeResp(msg).toLowerCase().contains("confirm");
 	}
-
+	
+	// 05-24 15:02:23 Dear agent, you have successfully transferred 1000 Ks to 959441331456.Your remaining balance is -80499 Ks.
 	private boolean isSuccess(Message msg) {
 		return safeResp(msg).toLowerCase().contains("success");
 	}

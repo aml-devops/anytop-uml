@@ -154,9 +154,8 @@ public class MytelTopupUssdService implements UssdTopupService {
 	private String safeResp(Message msg) {
 		return (msg != null && msg.getResp() != null) ? msg.getResp() : "NULL";
 	}
-
+	
 	private boolean isSuccess(Message msg) {
-		String resp = safeResp(msg).toLowerCase();
-		return !(resp.contains("fail") || resp.contains("error"));
+		return safeResp(msg).toLowerCase().contains("success");
 	}
 }

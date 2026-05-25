@@ -23,7 +23,7 @@ public class SimMsisdnUpdateScheduler {
 	// @Scheduled(cron = "0 0 * * * *")
 	// To run at 2:00 AM every day
 	@Scheduled(cron = "0 0 2 * * *")
-	//@Scheduled(cron = "0 * * * * *")
+	// @Scheduled(cron = "0 * * * * *")
 	public void refreshMsisdns() {
 
 		LocalDateTime startTime = LocalDateTime.now();

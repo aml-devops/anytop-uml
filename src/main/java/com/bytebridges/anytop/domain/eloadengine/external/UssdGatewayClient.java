@@ -40,8 +40,9 @@ public class UssdGatewayClient {
 					.onStatus(status -> status.isError(),
 							clientResponse -> clientResponse.bodyToMono(String.class)
 									.map(body -> new RuntimeException("USSD error response: " + body)))
-					.bodyToMono(String.class).block(Duration.ofSeconds(30));
-			// .block();
+					.bodyToMono(String.class)
+					//.block(Duration.ofSeconds(30));
+			        .block();
 			return mapper.readValue(response, Message.class);
 		} catch (Exception e) {
 			log.error("USSD gateway error port={} ussd={} errorType={}", port, ussd, e.getClass().getSimpleName(), e);
