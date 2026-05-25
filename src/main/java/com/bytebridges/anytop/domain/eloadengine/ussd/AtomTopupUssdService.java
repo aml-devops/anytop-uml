@@ -115,6 +115,7 @@ public class AtomTopupUssdService implements UssdTopupService {
 		return safeResp(msg).toLowerCase().contains(keyword.toLowerCase());
 	}
 
+	// Thank you, we are working as fast as possible to fulfill your request. Confirmation SMS coming shortly. Have a great day.
 	private boolean isSuccess(Message msg) {
 		String resp = safeResp(msg).toLowerCase();
 		return !(resp.contains("fail") || resp.contains("error"));

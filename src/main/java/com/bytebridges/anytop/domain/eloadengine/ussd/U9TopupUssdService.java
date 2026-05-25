@@ -70,9 +70,15 @@ public class U9TopupUssdService implements UssdTopupService {
 	private String safeResp(Message msg) {
 		return (msg != null && msg.getResp() != null) ? msg.getResp() : "NULL";
 	}
-
+	
+	/**
 	private boolean isSuccess(Message msg) {
 		String resp = safeResp(msg).toLowerCase();
 		return !(resp.contains("fail") || resp.contains("error"));
+	}*/
+	
+	// Success. Thank you your transaction is executed successfully. Ref. 796786936
+	private boolean isSuccess(Message msg) {
+		return safeResp(msg).toLowerCase().contains("success");
 	}
 }
