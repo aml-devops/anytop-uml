@@ -156,6 +156,9 @@ public class MytelTopupUssdService implements UssdTopupService {
 	}
 	
 	private boolean isSuccess(Message msg) {
-		return safeResp(msg).toLowerCase().contains("success");
+	    String resp = safeResp(msg).toLowerCase();
+
+	    return resp.contains("successful")
+	            && !resp.contains("unsuccessful");
 	}
 }
