@@ -59,7 +59,7 @@ public class TransactionQueryService {
 	private TransactionResponseDto mapToDto(Transaction transaction) {
 
 		return new TransactionResponseDto(transaction.getId(), transaction.getPhoneNumber(), transaction.getAmount(),
-				transaction.getOperator(), transaction.getStatus().name(), transaction.getSimId(), transaction.getMessageId(),
-				transaction.getCreatedAt());
+				transaction.getOperator(), transaction.getStatus().name(), transaction.getSimId(),
+				transaction.getSimName(), transaction.getMessageId(), transaction.getCreatedAt());
 	}
 }

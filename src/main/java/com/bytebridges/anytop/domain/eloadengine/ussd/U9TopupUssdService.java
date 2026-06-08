@@ -37,7 +37,7 @@ public class U9TopupUssdService implements UssdTopupService {
 			// STEP 1
 			// =========================================================
 			String step1Request = "*116*1*" + mobile + "*" + amount + "*" + password + "*1#";
-			log.debug("U9 step1 request txId={} request={}", txnId, step1Request);
+			log.debug("U9 step1 request txId={} port={} request={}", txnId, port, step1Request);
 			long t1 = System.currentTimeMillis();
 			
 			response = client.sendUssd(gateway, port, step1Request);

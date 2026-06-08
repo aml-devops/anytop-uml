@@ -29,6 +29,8 @@ public class Transaction {
 
     private Long simId;
     
+    private String simName;
+    
     private String messageId;
 
     private LocalDateTime createdAt;

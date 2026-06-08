@@ -37,7 +37,7 @@ public class AtomTopupUssdService implements UssdTopupService {
 			// STEP 1
 			// =========================================================
 			String step1Request = "*555*" + mobile + "*9#";
-			log.debug("ATOM step1 request txId={} request={}", txnId, step1Request);
+			log.debug("ATOM step1 request txId={} port={} request={}", txnId, port, step1Request);
 			long t1 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, step1Request);
@@ -52,7 +52,7 @@ public class AtomTopupUssdService implements UssdTopupService {
 			// STEP 2
 			// =========================================================
 			if (hasText(response, "amount")) {
-				log.debug("ATOM step2 request txId={} request={}", txnId, amount);
+				log.debug("ATOM step2 request txId={} port={} request={}", txnId, port, amount);
 				long t2 = System.currentTimeMillis();
 
 				response = client.sendUssd(gateway, port, amount);
@@ -69,7 +69,7 @@ public class AtomTopupUssdService implements UssdTopupService {
 			// STEP 3
 			// =========================================================
 			if (hasText(response, "m-pin")) {
-				log.debug("ATOM step3 request txId={} request={}", txnId, password);
+				log.debug("ATOM step3 request txId={} port={} request={}", txnId, port, password);
 				long t3 = System.currentTimeMillis();
 
 				response = client.sendUssd(gateway, port, password);
@@ -78,7 +78,7 @@ public class AtomTopupUssdService implements UssdTopupService {
 
 				// SECOND CONFIRMATION
 				if (hasText(response, "m-pin")) {
-					log.debug("ATOM step3 retry request txId={} request={}", txnId, password);
+					log.debug("ATOM step3 retry request txId={} port={} request={}", txnId, port, password);
 					long t4 = System.currentTimeMillis();
 
 					response = client.sendUssd(gateway, port, password);

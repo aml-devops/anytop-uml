@@ -17,6 +17,7 @@ public class TransactionResponseDto {
     private String operator;
     private String status;
     private Long simId;
+    private String simName;
     private String messageId;
     private LocalDateTime createdAt;
 }

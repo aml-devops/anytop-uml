@@ -64,10 +64,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 	@Query(value = """
 			UPDATE transactions
 			SET status = :status,
-			    sim_id = :simId
+			    sim_id = :simId,
+			    sim_name = :simName
 			WHERE id = :txnId
 			""", nativeQuery = true)
-	int completeTransaction(Long txnId, String status, Long simId);
+	int completeTransaction(Long txnId, String status, Long simId, String simName);
 	
 	@Modifying
 	@Transactional

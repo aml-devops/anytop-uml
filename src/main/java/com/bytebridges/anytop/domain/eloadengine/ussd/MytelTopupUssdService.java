@@ -38,7 +38,7 @@ public class MytelTopupUssdService implements UssdTopupService {
 			// STEP 1
 			// =========================================================
 			String step1Request = "*888#";
-			log.debug("MYTEL step1 request txId={} request={}", txnId, step1Request);
+			log.debug("MYTEL step1 request txId={} port={} request={}", txnId, port, step1Request);
 			long t1 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, step1Request);
@@ -54,7 +54,7 @@ public class MytelTopupUssdService implements UssdTopupService {
 			// STEP 2
 			// =========================================================			
 			String step2Request = "1";
-			log.debug("MYTEL step2 request txId={} request={}", txnId, step2Request);
+			log.debug("MYTEL step2 request txId={} port={} request={}", txnId, port, step2Request);
 			long t2 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, step2Request);
@@ -69,7 +69,7 @@ public class MytelTopupUssdService implements UssdTopupService {
 			// STEP 3
 			// =========================================================
 			String step3Request = "1";
-			log.debug("MYTEL step3 request txId={} request={}", txnId, step3Request);
+			log.debug("MYTEL step3 request txId={} port={} request={}", txnId, port, step3Request);
 			long t3 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, step3Request);			
@@ -83,7 +83,7 @@ public class MytelTopupUssdService implements UssdTopupService {
 			// =========================================================
 			// STEP 4
 			// =========================================================
-			log.debug("MYTEL step4 request txId={} request={}", txnId, mobile);
+			log.debug("MYTEL step4 request txId={} port={} request={}", txnId, port, mobile);
 			long t4 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, mobile);
@@ -98,7 +98,7 @@ public class MytelTopupUssdService implements UssdTopupService {
 			// STEP 5
 			// =========================================================
 			String amountCode = MytelAmount.fromAmount(amount);
-			log.debug("MYTEL step5 request txId={} request={}", txnId, amountCode);
+			log.debug("MYTEL step5 request txId={} port={} request={}", txnId, port, amountCode);
 			long t5 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, amountCode);
@@ -112,7 +112,7 @@ public class MytelTopupUssdService implements UssdTopupService {
 			// =========================================================
 			// STEP 6
 			// =========================================================
-			log.debug("MYTEL step6 request txId={} request={}", txnId, password);
+			log.debug("MYTEL step6 request txId={} port={} request={}", txnId, port, password);
 			long t6 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, password);
@@ -127,7 +127,7 @@ public class MytelTopupUssdService implements UssdTopupService {
 			// STEP 7
 			// =========================================================
 			String step7Request = "1";
-			log.debug("MYTEL step7 request txId={} request={}", txnId, step7Request);
+			log.debug("MYTEL step7 request txId={} port={} request={}", txnId, port, step7Request);
 			long t7 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, step7Request);
@@ -155,6 +155,8 @@ public class MytelTopupUssdService implements UssdTopupService {
 		return (msg != null && msg.getResp() != null) ? msg.getResp() : "NULL";
 	}
 	
+	// Transaction is successful. Detail information in your mesage. Thanks
+	// Transaction is unsuccessful for the subscriber 9521. Please try again later! Transaction id is 1524185631
 	private boolean isSuccess(Message msg) {
 	    String resp = safeResp(msg).toLowerCase();
 

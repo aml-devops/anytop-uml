@@ -50,8 +50,20 @@ public class BatchPublisherScheduler {
 				producer.send(new TopupMessage(txn.getId(), txn.getOperator(), txn.getMessageId()));
 
 			} catch (Exception ex) {
-
 				log.error("BATCH_PUBLISH_FAILED txnId={} error={}", txn.getId(), ex.getMessage(), ex);
+				
+			} finally {
+
+				try {
+
+					Thread.sleep(2000);
+
+				} catch (InterruptedException e) {
+
+					Thread.currentThread().interrupt();
+
+					log.warn("SIM balance scheduler interrupted");
+				}
 			}
 		}
 	}

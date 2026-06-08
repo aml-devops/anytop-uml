@@ -36,7 +36,7 @@ public class MptTopupUssdService implements UssdTopupService {
 			// STEP 1
 			// =========================================================
 			String step1Request = "*125*" + amount + "*" + mobile + "*" + password + "#";
-			log.debug("MPT step1 request txId={} request={}", txnId, step1Request);
+			log.debug("MPT step1 request txId={} port={} request={}", txnId, port, step1Request);
 			long t1 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, step1Request);
@@ -51,7 +51,7 @@ public class MptTopupUssdService implements UssdTopupService {
 			// STEP 2
 			// =========================================================
 			String step2Request = "1";
-			log.debug("MPT step2 request txId={} request={}", txnId, step2Request);
+			log.debug("MPT step2 request txId={} port={} request={}", txnId, port, step2Request);
 			long t2 = System.currentTimeMillis();
 
 			response = client.sendUssd(gateway, port, step2Request);
@@ -67,7 +67,7 @@ public class MptTopupUssdService implements UssdTopupService {
 			// =========================================================
 			String step3Request = "1";
 			if (needSecondConfirm(response)) {
-				log.debug("MPT step3 request txId={} request={}", txnId, step3Request);
+				log.debug("MPT step3 request txId={} port={} request={}", txnId, port, step3Request);
 				long t3 = System.currentTimeMillis();
 
 				response = client.sendUssd(gateway, port, step3Request);
