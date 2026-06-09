@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bytebridges.anytop.domain.transaction.dto.OperatorTransactionChartDto;
 import com.bytebridges.anytop.domain.transaction.entity.Transaction;
+import com.bytebridges.anytop.domain.transaction.enums.TxnStatus;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
@@ -69,24 +70,33 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 			WHERE id = :txnId
 			""", nativeQuery = true)
 	int completeTransaction(Long txnId, String status, Long simId, String simName);
-	
+
 	@Modifying
 	@Transactional
 	@Query(value = """
-	    UPDATE transactions
-	    SET status = 'FAILED_SYSTEM'
-	    WHERE id = :txnId
-	    AND status = 'PROCESSING'
-	""", nativeQuery = true)
+			    UPDATE transactions
+			    SET status = 'FAILED_SYSTEM'
+			    WHERE id = :txnId
+			    AND status = 'PROCESSING'
+			""", nativeQuery = true)
 	int markSystemFailed(Long txnId);
-	
-    @Query(value = """
-            SELECT 
-                t.operator AS operator,
-                COUNT(*) AS totalTransactions
-            FROM transactions t
-            GROUP BY t.operator
-            ORDER BY COUNT(*) DESC
-            """, nativeQuery = true)
-        List<OperatorTransactionChartDto> getTransactionCountPerOperator();
+
+	@Query(value = """
+			SELECT
+			    t.operator AS operator,
+			    COUNT(*) AS totalTransactions
+			FROM transactions t
+			GROUP BY t.operator
+			ORDER BY COUNT(*) DESC
+			""", nativeQuery = true)
+	List<OperatorTransactionChartDto> getTransactionCountPerOperator();
+
+	/**
+	 * 2. GENERAL STATUS UPDATE (NATIVE SQL) Spring Data JPA will automatically
+	 * convert the TxnStatus Enum name() into a string parameter for the SQL query.
+	 */
+	@Modifying
+	@Transactional
+	@Query(value = "UPDATE transactions SET status = :status WHERE id = :id", nativeQuery = true)
+	int updateStatus(@Param("id") Long id, @Param("status") String status);
 }

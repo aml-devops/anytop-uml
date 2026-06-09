@@ -1,7 +1,6 @@
 package com.bytebridges.anytop.domain.rabbitmq.consumer;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import com.bytebridges.anytop.config.RabbitMQConfig;
@@ -16,9 +15,8 @@ import com.bytebridges.anytop.domain.transaction.repository.TransactionRepositor
  */
 @Component
 public class MytelTopupConsumer extends AbstractTopupConsumer {
-	public MytelTopupConsumer(TransactionRepository transactionRepository, GsmWorker gsmWorker,
-			TaskExecutor gsmExecutor) {
-		super(transactionRepository, gsmWorker, gsmExecutor);
+	public MytelTopupConsumer(TransactionRepository transactionRepository, GsmWorker gsmWorker) {
+		super(transactionRepository, gsmWorker);
 	}
 
 	@RabbitListener(queues = RabbitMQConfig.MYTEL_QUEUE, concurrency = "5")

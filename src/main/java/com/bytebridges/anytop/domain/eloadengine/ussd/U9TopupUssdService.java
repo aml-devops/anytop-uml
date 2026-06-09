@@ -78,6 +78,8 @@ public class U9TopupUssdService implements UssdTopupService {
 	}*/
 	
 	// Success. Thank you your transaction is executed successfully. Ref. 796786936
+	// Sorry, Your transaction is failed
+	// Incorrect input.
 	private boolean isSuccess(Message msg) {
 		return safeResp(msg).toLowerCase().contains("success");
 	}
