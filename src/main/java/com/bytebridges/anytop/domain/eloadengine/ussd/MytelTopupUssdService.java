@@ -1,6 +1,8 @@
 package com.bytebridges.anytop.domain.eloadengine.ussd;
 
 import org.springframework.stereotype.Service;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.bytebridges.anytop.config.EloadConfig;
 import com.bytebridges.anytop.domain.eloadengine.UssdTopupService;
@@ -9,158 +11,95 @@ import com.bytebridges.anytop.domain.eloadengine.external.UssdGatewayClient;
 import com.bytebridges.anytop.domain.transaction.dto.Message;
 import com.bytebridges.anytop.domain.transaction.enums.TxnStatus;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * MYTEL USSD top-up service implementation.
- *
- * Handles USSD airtime top-up transactions through the external USSD Gateway
- * integration.
- */
 @Service("MYTEL")
-@RequiredArgsConstructor
 @Slf4j
 public class MytelTopupUssdService implements UssdTopupService {
 
-	private final UssdGatewayClient client;
-	private final EloadConfig config;
+    private final UssdGatewayClient client;
+    private final EloadConfig config;
+    
+    // Lock pool for hardware port isolation
+    private final ConcurrentHashMap<String, ReentrantLock> portLocks = new ConcurrentHashMap<>();
 
-	@Override
-	public TxnStatus topup(Long txnId, String port, String password, String mobile, String amount) {
-		String gateway = config.getEndpoints().getUssdGateway();
-		long startTime = System.currentTimeMillis();		
-		log.info("MYTEL topup started txId={} port={} mobile={} amount={}", txnId, port, mobile, amount);
+    public MytelTopupUssdService(UssdGatewayClient client, EloadConfig config) {
+        this.client = client;
+        this.config = config;
+    }
 
-		try {
-			Message response;
-			// =========================================================
-			// STEP 1
-			// =========================================================
-			String step1Request = "*888#";
-			log.debug("MYTEL step1 request txId={} port={} request={}", txnId, port, step1Request);
-			long t1 = System.currentTimeMillis();
+    private ReentrantLock getLockForPort(String port) {
+        return portLocks.computeIfAbsent(port, k -> new ReentrantLock(true));
+    }
 
-			response = client.sendUssd(gateway, port, step1Request);
+    @Override
+    public TxnStatus topup(Long txnId, String port, String password, String mobile, String amount) {
+        String gateway = config.getEndpoints().getUssdGateway();
+        long startTime = System.currentTimeMillis();
+        
+        ReentrantLock lock = getLockForPort(port);
 
-			log.debug("MYTEL step1 response txId={} durationMs={} response={}", txnId, System.currentTimeMillis() - t1, safeResp(response));
-			
-			if (response == null || response.getResp() == null) {
-				log.warn("MYTEL step1 failed txId={} reason=NULL_RESPONSE", txnId);
-				return TxnStatus.FAILED;
-			}
+        try {
+            lock.lock(); // Ensure exclusive access to this physical SIM for all 7 steps
+            log.info("MYTEL topup started txId={} port={} mobile={} amount={}", txnId, port, mobile, amount);
 
-			// =========================================================
-			// STEP 2
-			// =========================================================			
-			String step2Request = "1";
-			log.debug("MYTEL step2 request txId={} port={} request={}", txnId, port, step2Request);
-			long t2 = System.currentTimeMillis();
+            Message response = new Message();
+            // Loop through steps 1-7
+            // We use a small buffer sleep to ensure the hardware finishes processing before the next USSD command
+            for (int step = 1; step <= 7; step++) {
+                String currentRequest = getRequestForStep(step, mobile, amount, password);
+                log.debug("MYTEL step{} request txId={} request={}", step, txnId, currentRequest);
+                
+                long t = System.currentTimeMillis();
+                response = client.sendUssd(gateway, port, currentRequest);
+                log.debug("MYTEL step{} response txId={} durationMs={} response={}", step, txnId, System.currentTimeMillis() - t, safeResp(response));
 
-			response = client.sendUssd(gateway, port, step2Request);
+                if (response == null || response.getResp() == null) {
+                    log.warn("MYTEL step{} failed txId={} reason=NULL_RESPONSE", step, txnId);
+                    return TxnStatus.FAILED;
+                }
+                
+                Thread.sleep(500); // Critical delay for 7-step sequence stability
+            }
 
-			log.debug("MYTEL step2 response txId={} durationMs={} response={}", txnId, System.currentTimeMillis() - t2, safeResp(response));
-			if (response == null || response.getResp() == null) {
-				log.warn("MYTEL step2 failed txId={} reason=NULL_RESPONSE", txnId);
-				return TxnStatus.FAILED;
-			}
+            long totalTime = System.currentTimeMillis() - startTime;
+            if (isSuccess(response)) {
+                log.info("MYTEL topup success txId={} totalDurationMs={}", txnId, totalTime);
+                return TxnStatus.SUCCESS;
+            }
+            log.warn("MYTEL topup failed txId={} totalDurationMs={}", txnId, totalTime);
+            return TxnStatus.FAILED;
 
-			// =========================================================
-			// STEP 3
-			// =========================================================
-			String step3Request = "1";
-			log.debug("MYTEL step3 request txId={} port={} request={}", txnId, port, step3Request);
-			long t3 = System.currentTimeMillis();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return TxnStatus.FAILED;
+        } catch (Exception e) {
+            log.error("MYTEL topup error txId={} errorType={}", txnId, e.getClass().getSimpleName(), e);
+            return TxnStatus.FAILED;
+        } finally {
+            lock.unlock();
+        }
+    }
 
-			response = client.sendUssd(gateway, port, step3Request);			
+    private String getRequestForStep(int step, String mobile, String amount, String password) {
+        return switch (step) {
+            case 1 -> "*888#";
+            case 2, 3, 7 -> "1";
+            case 4 -> mobile;
+            case 5 -> MytelAmount.fromAmount(amount);
+            case 6 -> password;
+            default -> "";
+        };
+    }
 
-			log.debug("MYTEL step3 response txId={} durationMs={} response={}", txnId, System.currentTimeMillis() - t3, safeResp(response));
-			if (response == null || response.getResp() == null) {
-				log.warn("MYTEL step3 failed txId={} reason=NULL_RESPONSE", txnId);
-				return TxnStatus.FAILED;
-			}
-
-			// =========================================================
-			// STEP 4
-			// =========================================================
-			log.debug("MYTEL step4 request txId={} port={} request={}", txnId, port, mobile);
-			long t4 = System.currentTimeMillis();
-
-			response = client.sendUssd(gateway, port, mobile);
-
-			log.debug("MYTEL step4 response txId={} durationMs={} response={}", txnId, System.currentTimeMillis() - t4, safeResp(response));
-			if (response == null || response.getResp() == null) {
-				log.warn("MYTEL step4 failed txId={} reason=NULL_RESPONSE", txnId);
-				return TxnStatus.FAILED;
-			}
-
-			// =========================================================
-			// STEP 5
-			// =========================================================
-			String amountCode = MytelAmount.fromAmount(amount);
-			log.debug("MYTEL step5 request txId={} port={} request={}", txnId, port, amountCode);
-			long t5 = System.currentTimeMillis();
-
-			response = client.sendUssd(gateway, port, amountCode);
-
-			log.debug("MYTEL step5 response txId={} durationMs={} response={}", txnId, System.currentTimeMillis() - t5, safeResp(response));
-			if (response == null || response.getResp() == null) {
-				log.warn("MYTEL step5 failed txId={} reason=NULL_RESPONSE", txnId);
-				return TxnStatus.FAILED;
-			}
-
-			// =========================================================
-			// STEP 6
-			// =========================================================
-			log.debug("MYTEL step6 request txId={} port={} request={}", txnId, port, password);
-			long t6 = System.currentTimeMillis();
-
-			response = client.sendUssd(gateway, port, password);
-
-			log.debug("MYTEL step6 response txId={} port={} mobile={} durationMs={} response={}", txnId, System.currentTimeMillis() - t6, safeResp(response));
-			if (response == null || response.getResp() == null) {
-				log.warn("MYTEL step6 failed txId={} reason=NULL_RESPONSE", txnId);
-				return TxnStatus.FAILED;
-			}
-
-			// =========================================================
-			// STEP 7
-			// =========================================================
-			String step7Request = "1";
-			log.debug("MYTEL step7 request txId={} port={} request={}", txnId, port, step7Request);
-			long t7 = System.currentTimeMillis();
-
-			response = client.sendUssd(gateway, port, step7Request);
-
-			log.debug("MYTEL step7 response txId={} durationMs={} response={}", txnId, System.currentTimeMillis() - t7, safeResp(response));
-
-			// =========================================================
-			// FINAL RESULT
-			// =========================================================
-			long totalTime = System.currentTimeMillis() - startTime;
-			if (isSuccess(response)) {
-				log.info("MYTEL topup success txId={} totalDurationMs={}", txnId, totalTime);
-				return TxnStatus.SUCCESS;
-			}
-			log.warn("MYTEL topup failed txId={} totalDurationMs={}", txnId, totalTime);
-			return TxnStatus.FAILED;
-		} catch (Exception e) {
-			long totalTime = System.currentTimeMillis() - startTime;
-			log.error("MYTEL topup error txId={} durationMs={} errorType={}", txnId, totalTime, e.getClass().getSimpleName(), e);
-			return TxnStatus.FAILED;
-		}
-	}
-
-	private String safeResp(Message msg) {
-		return (msg != null && msg.getResp() != null) ? msg.getResp() : "NULL";
-	}
-	
-	// Transaction is successful. Detail information in your mesage. Thanks
+    private String safeResp(Message msg) {
+        return (msg != null && msg.getResp() != null) ? msg.getResp() : "NULL";
+    }
+    
+    // Transaction is successful. Detail information in your mesage. Thanks
 	// Transaction is unsuccessful for the subscriber 9521. Please try again later! Transaction id is 1524185631
-	private boolean isSuccess(Message msg) {
-	    String resp = safeResp(msg).toLowerCase();
-
-	    return resp.contains("successful")
-	            && !resp.contains("unsuccessful");
-	}
+    private boolean isSuccess(Message msg) {
+        String resp = safeResp(msg).toLowerCase();
+        return resp.contains("successful") && !resp.contains("unsuccessful");
+    }
 }
